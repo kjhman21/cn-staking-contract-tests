@@ -40,13 +40,8 @@ var pd_factory_addr  = "0x57c300bDAABa514378858761c8d34c2e91383a8C";
 var stakingtracker_addr = "0x21aA1F333304d2E509AeD477352193f2Fe589955";
 var kir_addr = "0xd9888e1CF46f04FFEcb6F2354dAe43b6A145144F";
 var poc_addr = "0x26f44f193658D2AB41866F568F74e45e6bBCF71a";
-var stakingAmount = caver.utils.toPeb(100000, "KLAY")
 var addressBookAddr = '0000000000000000000000000000000000000400'
-var unstakingTo = u6.address;
-var unstakingAmount = 10000;
-var requestId = 0;
 var gcid = 1;
-var withdrawalRequestId = 0;
 
 async function fillKlay() {
   // fill up klay first
@@ -277,6 +272,25 @@ async function checkMaxWithdraw() {
   console.log(await pdc.methods.maxWithdraw(staker.address).call({from:staker.address, gas:4000000, value:0}));
 }
 
+async function transferToken() {
+  var pdaddr = await getPdAddr();
+  var pdc = new caver.klay.Contract(pd.abi, pdaddr)
+
+  console.log("Checking the balance of the staker...")
+  var balance = await pdc.methods.balanceOf(staker.address).call({from:staker.address, gas:4000000, value:0});
+  console.log(`balance = ${balance}`)
+
+  var bnHalfBalance = caver.utils.BigNumber(balance).idiv(2);
+
+  console.log(`sending half balance ${bnHalfBalance.toString()} to ${u6.address}`)
+  await pdc.methods.transfer(u6.address, bnHalfBalance.toString()).send({from:staker.address, gas:4000000, value:0})
+
+  console.log(`checking staker's balance`)
+  console.log(await pdc.methods.balanceOf(staker.address).call({from:staker.address, gas:4000000, value:0}));
+  console.log(`checking u6's balance`)
+  console.log(await pdc.methods.balanceOf(u6.address).call({from:staker.address, gas:4000000, value:0}));
+}
+
 async function sweep() {
   var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
 
@@ -337,75 +351,6 @@ async function getAddressBookAddressInfo() {
   console.log(await c.methods.getAllAddressInfo().call({from:staker.address, gas:4000000, value:0}));
 }
 
-async function submitUnstaking() {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  console.log("Submit withdrawal...")
-  console.log(await c.methods.approveStakingWithdrawal(unstakingTo, unstakingAmount).send({from:staker.address, gas:4000000, value:0}));
-}
-
-async function getRequestIds(state) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  console.log("Get request ids from state "+requestStates[state])
-
-  return await c.methods.getRequestIds(0,10000,state).call({from:u3.address, gas:4000000, value:0});
-}
-
-async function getRequestInfo(id) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  console.log("get the request info...")
-  var request = await c.methods.getRequestInfo(id).call({from:u2.address, gas:4000000, value:0})
-  console.log("functionId: ",request[0], functionIds[request[0]])
-  console.log("firstArg: ",request[1])
-  console.log("secondArg: ",request[2])
-  console.log("thirdArg: ",request[3])
-  console.log("requestProposer: ",request[4])
-  console.log("confirmers: ",request[5])
-  console.log("request state: ",request[6], requestStates[request[6]])
-}
-
-async function getApprovedStakingWithdrawalIds(state) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  console.log("Get ApprovedStakingWithdrawalIds from state "+WithdrawalStakingStates[state])
-  return await c.methods.getApprovedStakingWithdrawalIds(0,10000,state).call({from:u3.address, gas:4000000, value:0});
-}
-
-async function getApprovedStakingWithdrawalInfo(id) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  console.log("get the request info...")
-  var request = await c.methods.getApprovedStakingWithdrawalInfo(id).call({from:u2.address, gas:4000000, value:0})
-  console.log("to:", request[0]);
-  console.log("value:", request[1])
-  console.log("withdrawableFrom(unixtime):", request[2])
-  console.log("approval state: ", WithdrawalStakingStates[request[3]])
-}
-
-async function confirm(id) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  var firstArg = caver.utils.padLeft(unstakingTo,64);
-  var secondArg = caver.utils.padLeft(caver.utils.toHex(unstakingAmount),64);
-  var thirdArg = caver.utils.padLeft('0x0', 64);
-
-  console.log(await c.methods.confirmRequest(id, functionIds.ApproveStakingWithdrawal, firstArg, secondArg, thirdArg).send({from:u3.address, gas:4000000, value:0}));
-  // In case of 2-of-4 multisig, only the first confirm is possible. Other confirms will be reverted because the state is not in the not-confirmed state.
-  // console.log(await c.methods.confirmRequest(id, functionIds.ApproveStakingWithdrawal, firstArg, secondArg, thirdArg).send({from:u4.address, gas:4000000, value:0}));
-  // console.log(await c.methods.confirmRequest(id, functionIds.ApproveStakingWithdrawal, firstArg, secondArg, thirdArg).send({from:u5.address, gas:4000000, value:0}));
-}
-
-async function withdraw(id) {
-  var c = new caver.klay.Contract(cnv3.abi, cnv3_addr);
-
-  var r = await c.methods.withdrawApprovedStaking(id).send({from:u3.address, gas:4000000, value:0});
-  console.log(r);
-  console.log(r.events.WithdrawApprovedStaking.returnValues)
-  console.log(r.events.WithdrawApprovedStaking.raw)
-}
-
 async function setupCnV3() {
   // Deploy CN V3 staking contract.
   await deploy_v3();
@@ -451,25 +396,31 @@ async function checkStakeBalance() {
 
 async function fullExec() {
   // filling KLAY before execution.
-  await fillKlay();
+  // await fillKlay();
 
-  //---- setting up CN v3 contract
-  await setupCnV3();
+  // //---- setting up CN v3 contract
+  // await setupCnV3();
 
-  // --- setting up address book
-  await setupAddressBook();
+  // // --- setting up address book
+  // await setupAddressBook();
 
-  // staking 100 KLAYs as staker account.
-  await stakeKlay();
+  // // staking 100 KLAYs as staker account.
+  // await stakeKlay();
 
-  // checkStakeBalance()
-  await checkStakeBalance()
+  // // checkStakeBalance()
+  // await checkStakeBalance()
 
-  // withdraw half.
-  await withdrawHalf();
+  // // withdraw half.
+  // await withdrawHalf();
 
-  // checkStakeBalance()
-  await checkStakeBalance()
+  // // checkStakeBalance()
+  // await checkStakeBalance();
+
+  // // send LST to someone else
+  // await transferToken();
+
+  // // checkStakeBalance()
+  // await checkStakeBalance();
 
   // withdraw all using redeem
   await withdrawAll();
