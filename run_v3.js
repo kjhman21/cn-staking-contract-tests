@@ -396,31 +396,31 @@ async function checkStakeBalance() {
 
 async function fullExec() {
   // filling KLAY before execution.
-  // await fillKlay();
+  await fillKlay();
 
-  // //---- setting up CN v3 contract
-  // await setupCnV3();
+  //---- setting up CN v3 contract
+  await setupCnV3();
 
-  // // --- setting up address book
-  // await setupAddressBook();
+  // --- setting up address book
+  await setupAddressBook();
 
-  // // staking 100 KLAYs as staker account.
-  // await stakeKlay();
+  // staking 100 KLAYs as staker account.
+  await stakeKlay();
 
-  // // checkStakeBalance()
-  // await checkStakeBalance()
+  // checkStakeBalance()
+  await checkStakeBalance()
 
-  // // withdraw half.
-  // await withdrawHalf();
+  // withdraw half.
+  await withdrawHalf();
 
-  // // checkStakeBalance()
-  // await checkStakeBalance();
+  // checkStakeBalance()
+  await checkStakeBalance();
 
-  // // send LST to someone else
-  // await transferToken();
+  // send LST to someone else
+  await transferToken();
 
-  // // checkStakeBalance()
-  // await checkStakeBalance();
+  // checkStakeBalance()
+  await checkStakeBalance();
 
   // withdraw all using redeem
   await withdrawAll();
