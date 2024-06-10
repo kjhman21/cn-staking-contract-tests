@@ -19,7 +19,7 @@ You need to have the following packages
 ## Getting Started
 
 ```
-$ ./run.sh
+$ ./run_v3.sh
 ```
 
 This script will deploy a private Klaytn network on the local machine with a single CN using `docker-compose`.
