@@ -3,6 +3,19 @@
 This repo contains test code for [cn staking contract](https://github.com/klaytn/klaytn/tree/dev/contracts/cnstaking).
 Using this test code, you can easily test the cn staking contract.
 
+## Prerequisites
+
+You need to have the following packages
+
+- [docker](https://www.docker.com/)
+- [node.js](https://nodejs.org/en)
+
+## install npm packages
+
+```
+# npm install
+```
+
 ## Getting Started
 
 ```

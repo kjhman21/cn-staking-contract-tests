@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "caver-js": "^1.3.0"
+    "caver-js": "^1.11.0"
   }
 }
