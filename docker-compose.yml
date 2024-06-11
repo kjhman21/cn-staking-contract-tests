@@ -27,6 +27,7 @@ services:
         --networkid "2018" \
         --rewardbase "0xa16738b65C573E6a09aE9865a48864866A35B0c6" \
         --nat "any" \
+        --ntp.disable \
         --nodekeyhex "871ccee7755bb4247e783110cafa6437f9f593a1eaeebe0efcc1b0852282c3e5" \
         --nodiscover \
         --debug \

@@ -43,6 +43,8 @@ var poc_addr = "0x26f44f193658D2AB41866F568F74e45e6bBCF71a";
 var addressBookAddr = '0000000000000000000000000000000000000400'
 var gcid = 1;
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 async function fillKlay() {
   // fill up klay first
   console.log("filling up KLAY to accounts...")
@@ -249,11 +251,8 @@ async function constructAddressBook() {
 }
 
 async function checkBalance() {
-  var pdaddr = await getPdAddr();
-  var pdc = new caver.klay.Contract(pd.abi, pdaddr)
-
   console.log("Checking the balance of the staker...")
-  console.log(await pdc.methods.balanceOf(staker.address).call({from:staker.address, gas:4000000, value:0}));
+  console.log(await caver.klay.getBalance(staker.address));
 }
 
 async function checkMaxRedeem() {
@@ -339,6 +338,25 @@ async function checkTotalAssets() {
   console.log(await pdc.methods.totalAssets().call({from:staker.address, gas:4000000, value:0}));
 }
 
+async function claim() {
+  var pdaddr = await getPdAddr();
+  var pdc = new caver.klay.Contract(pd.abi, pdaddr)
+
+  var requestIds = await pdc.methods.getUserRequestIdsWithState(staker.address, 2).call({from:staker.address, gas:4000000, value:0})
+
+  // check staker's balance
+  console.log('check balance before claim')
+  await checkBalance();
+
+  for(var i = 0;i < requestIds.length; i++) {
+    console.log(await pdc.methods.claim(requestIds[i]).send({ from: staker.address, gas: 4000000, value: 0 }));
+  }
+
+  // check staker's balance
+  console.log('check balance after claim')
+  await checkBalance();
+}
+
 async function getAddressBookState() {
   var c = new caver.klay.Contract(addressBook.abi, addressBookAddr);;
 
@@ -412,6 +430,10 @@ async function fullExec() {
 
   // withdraw half.
   await withdrawHalf();
+
+  // wait 30 seconds to claim.
+  await sleep(30 *1000);
+  await claim();
 
   // checkStakeBalance()
   await checkStakeBalance();
