@@ -21,6 +21,9 @@ const addr5 = "0x264e567ae5b9678ce068c8bdd09a599713a678ce"
 const privateKey6 = "0xc90431a4f939387006a8c6f43bec95d77022ae342d695864deefd80a30476c0a"
 const addr6 = "0x6b44ad54e5dbd62d5a6d3ed62ce954a2ba23f2a6"
 const privateKey7 = "0xd7deb7e2537939bb8c8bf2c0d181501228bf9db5c48439dcb49e7e59053a848f"
+const addr7 = "0x09778c52f93e089d22e2e0e3f591b20a79a7bbfe"
+const privateKey8 = "0x21372369b9d5011d99b1cf3aa0b83e3059d3fb32dec312dc846e877c1b3c591a"
+const addr8 = "0xc3769bfad4b20ec271eae97385951cb4ef9317f3"
 
 var u1 = caver.klay.accounts.wallet.add(privateKey1)
 var u2 = caver.klay.accounts.wallet.add(privateKey2)
